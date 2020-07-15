@@ -1,0 +1,4 @@
+azure-functions
+azure-storage-blob
+azure-identity
+python-telegram-bot==12.8
