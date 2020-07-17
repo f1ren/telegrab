@@ -14,7 +14,7 @@ import re
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, Bot
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, Dispatcher, MessageHandler, Filters
 
-from HttpTrigger.grab import get_screenshot
+from HttpTrigger.web_browser import get_screenshot
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -25,24 +25,33 @@ TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN', 'empty_token')
 SINGLETONS = {}
 
 
-def start(bot, update):
-    keyboard = [[InlineKeyboardButton("Option 1", callback_data='1'),
-                 InlineKeyboardButton("Option 2", callback_data='2')],
-                [InlineKeyboardButton("Option 3", callback_data='3')]]
+def start(*args):
+    update = get_telegram_args(args)
+
+    keyboard = [
+        [
+            InlineKeyboardButton("🌕 Sleep", callback_data='🌕 Sleep'),
+            InlineKeyboardButton("🌞 Wake", callback_data='🌞 Wake')
+        ],
+        # [
+        #     InlineKeyboardButton("Option 3", callback_data='3')
+        # ]
+    ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     update.message.reply_text('Please choose:', reply_markup=reply_markup)
 
 
-def button(bot, update):
+def button(*args):
+    update = get_telegram_args(args)
     query = update.callback_query
 
     # CallbackQueries need to be answered, even if no notification to the user is needed
     # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
     query.answer()
 
-    query.edit_message_text(text="Selected option: {}".format(query.data))
+    query.edit_message_text(text=query.data)
 
 
 def help_command(bot, update):
@@ -51,7 +60,7 @@ def help_command(bot, update):
 
 def echo(*args):
     """Echo the user message."""
-    update = [arg for arg in args if type(arg) is Update][0]
+    update = get_telegram_args(args)
     text = update.message.text
     URL_REGEX = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
     urls = [r[0] for r in re.findall(URL_REGEX, text)]
@@ -59,6 +68,11 @@ def echo(*args):
         update.message.reply_text('\n'.join(urls))
         for url in urls:
             update.message.reply_photo(photo=io.BytesIO(get_screenshot(url)))
+
+
+def get_telegram_args(args):
+    update = [arg for arg in args if type(arg) is Update][0]
+    return update
 
 
 def add_handlers_to_dispatcher(updater):

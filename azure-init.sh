@@ -19,3 +19,7 @@ az functionapp create --resource-group $rg --os-type Linux --plan  $plan --deplo
 
 # To update the function container
 az functionapp config container set -n $fun -g $rg --docker-custom-image-name $acr_id/selenium:latest
+
+
+# Build, push container and set function
+docker build --tag telegrab.azurecr.io/selenium . && docker push $acr_id/selenium:latest && az functionapp config container set -n $fun -g $rg --docker-custom-image-name $acr_id/selenium:latest
