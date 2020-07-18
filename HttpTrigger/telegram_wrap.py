@@ -25,17 +25,18 @@ TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN', 'empty_token')
 SINGLETONS = {}
 
 
-def start(*args):
+def log_event(*args):
     update = get_telegram_args(args)
 
     keyboard = [
         [
-            InlineKeyboardButton("🌕 Sleep", callback_data='🌕 Sleep'),
-            InlineKeyboardButton("🌞 Wake", callback_data='🌞 Wake')
+            InlineKeyboardButton(text, callback_data=text)
+            for text in ("🌙 Sleep", "🌞 Wake")
         ],
-        # [
-        #     InlineKeyboardButton("Option 3", callback_data='3')
-        # ]
+        [
+            InlineKeyboardButton(text, callback_data=text)
+            for text in ("🍼 Bottle", "🍔 food")
+        ]
     ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -76,7 +77,7 @@ def get_telegram_args(args):
 
 
 def add_handlers_to_dispatcher(updater):
-    updater.dispatcher.add_handler(CommandHandler('start', start))
+    updater.dispatcher.add_handler(CommandHandler('log', log_event))
     updater.dispatcher.add_handler(CallbackQueryHandler(button))
     updater.dispatcher.add_handler(CommandHandler('help', help_command))
     updater.dispatcher.add_handler(MessageHandler(Filters.text, echo))
