@@ -1,4 +1,12 @@
-## Azure Function in Python running selenium webdriver using a custom docker image
+## Create Telegram bot
+1. [Use the Botfather to register your bot](https://core.telegram.org/bots#creating-a-new-bot)
+2. Keep the token for step 4 below
+
+### Test you Telegram bot locally
+1. Set env var `TELEGRAM_TOKEN` to your bot token
+2. Run `telegram_wrap.py`
+
+### Azure Function in Python running selenium webdriver using a custom docker image
 The base Azure Function image does not contain the necessary chromium packages to run selenium webdriver. This project creates a custom docker image with the required libraries such that it can be run as Azure Function.
 
 - For more details, see blog https://towardsdatascience.com/how-to-create-a-selenium-web-scraper-in-azure-functions-f156fd074503
@@ -36,7 +44,18 @@ Run the following commands:
 `az appservice plan create --name $plan --resource-group $rg --sku P1v2 --is-linux`  
 `az functionapp create --resource-group $rg --os-type Linux --plan $plan --deployment-container-image-name $acr_id/selenium:latest --name $fun --storage-account $stor`
 
-### 4. Run Azure Function as HTTP trigger
+#### To update the Azure Function code
+
+`docker build --tag telegrab.azurecr.io/selenium . && docker push $acr_id/selenium:latest && az functionapp config container set -n $fun -g $rg --docker-custom-image-name $acr_id/selenium:latest`
+
+### 4. Connect Telegram to Azure Function
+1. In Azure portal, under the Function, click Copy Function Url and copy the Url
+2. `curl -F "url=<< Azure Function Url >>" https://api.telegram.org/bot<< Your token >>/setWebhook`
+
+#### Note about setWebhook
+Every time you run `telegram_wrap.py`, you unset the webhook. So you'll need to run the `setWebhook` above command after every local run.
+
+### 5. (Optional) Run Azure Function as HTTP trigger
 
 Test the Function in the portal or in your browser. The following code in __init__.py will return all URLs in the following webpage:
 
