@@ -11,10 +11,10 @@ import logging
 import os
 import re
 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, Bot
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, Bot, ChatAction
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, Dispatcher, MessageHandler, Filters
 
-from HttpTrigger.web_browser import get_screenshot
+from HttpTrigger.web_browser import get_text_and_screenshot
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -41,7 +41,8 @@ def log_event(*args):
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    update.message.reply_text('Please choose:', reply_markup=reply_markup)
+    # update.message.reply_text('Please choose:', reply_markup=reply_markup)
+    update.message.bot.send_message(chat_id=update.message.chat_id, text='Please choose:', reply_markup=reply_markup)
 
 
 def button(*args):
@@ -66,9 +67,17 @@ def echo(*args):
     URL_REGEX = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
     urls = [r[0] for r in re.findall(URL_REGEX, text)]
     if urls:
-        update.message.reply_text('\n'.join(urls))
-        for url in urls:
-            update.message.reply_photo(photo=io.BytesIO(get_screenshot(url)))
+        bot = update.message.bot
+        chat_id = update.message.chat_id
+        bot.send_chat_action(chat_id=chat_id, action=ChatAction.TYPING)
+        try:
+            for url in urls:
+                # update.message.reply_photo(photo=io.BytesIO(get_screenshot(url)))
+                text, screenshot = get_text_and_screenshot(url)
+                # update.message.reply_photo(photo=io.BytesIO(get_screenshot(url)))
+                bot.send_photo(chat_id=chat_id, photo=io.BytesIO(screenshot), caption=text)
+        except Exception:
+            update.message.reply_text('Failed on\n' + '\n'.join(urls))
 
 
 def get_telegram_args(args):
