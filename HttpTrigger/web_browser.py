@@ -14,20 +14,9 @@ def get_text_and_screenshot(url: str):
 
 
 if __name__ == '__main__':
-    s = '''
-https://www.mysodexo.co.il/b?evGukddIA5mOjDexP
-https://www.mysodexo.co.il/b?eendiaRQcIGBNOAJ6
-https://www.mysodexo.co.il/b?ehHicZuoT3n_plBepH
-https://www.mysodexo.co.il/b?eznzWYqAXlH35JbZn
-https://www.mysodexo.co.il/b?e_pH_sgYZYUonPbJZRn
-https://www.mysodexo.co.il/b?e4Z75gI_s1u5GFycqL
-https://www.mysodexo.co.il/b?eyJzQgqb3koqnqOjq
-https://www.mysodexo.co.il/b?eH6EHv3HKRZl3wTiD
-https://www.mysodexo.co.il/b?edodumRjsLJYZ7Fau
-https://www.mysodexo.co.il/b?ejmiWduAD1zLTXJwe
-'''
+    s = ''''''
     for l in s.split('\n'):
-        if len(l) > 0:
+        if len(l) > 0 and l.startswith('https://www.mysodexo.co.il/b'):
             text, image = get_text_and_screenshot(l)
             print(text)
 
