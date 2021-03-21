@@ -1,0 +1,1 @@
+let t = ''; $("[aria-label='Message list']:last-child").find("[role='option']").each(function() {let r=/סך (.*?) .*?תאריך: (.*?) .*?קוד שובר: (.*?) אם/is.exec(this.innerText); if (r!=null) {t += r[2] + '\t' + r[1] + '\t' + r[3] + '\n'}}); t
